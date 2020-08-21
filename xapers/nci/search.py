@@ -148,7 +148,8 @@ class DocItem(urwid.WidgetWrap):
         header = urwid.AttrMap(urwid.Columns([
             ('fixed', c1width, urwid.Text('%s' % (self.docid))),
             urwid.AttrMap(self.tag_field, 'tags'),
-            urwid.Text('%s%% match (%s/%s)' % (doc.matchp, doc_ind, total_docs), align='right'),
+            urwid.Text('match: {}%, score: {:0.1f} ({}/{})'.format(doc.matchp, doc.matchw, doc_ind, total_docs),
+                       align='right'),
             ]),
             'head')
         pile = [urwid.AttrMap(urwid.Divider(' '), '', ''), header] + \

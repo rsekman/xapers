@@ -51,6 +51,7 @@ class Documents():
         m = self.mset[index]
         doc = Document(self.db, m.document)
         doc.matchp = m.percent
+        doc.matchw = m.weight
         return doc
 
     def __iter__(self):
