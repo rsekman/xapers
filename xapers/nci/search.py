@@ -186,7 +186,7 @@ class DocItem(urwid.WidgetWrap):
             return
         for path in paths:
             if not os.path.exists(path):
-                self.ui.error('{}: file not found.'.format(self.docid))
+                self.ui.set_status('{}: file not found: {}'.format(self.docid, path), error=True)
             else:
                 self.ui.set_status('opening file: {}...'.format(path))
             xdg_open(path)

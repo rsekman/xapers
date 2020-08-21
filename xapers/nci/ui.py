@@ -34,6 +34,7 @@ PALETTE = [
     ('header', 'light gray', 'dark blue'),
     ('header_args', 'white', 'dark blue'),
     ('footer', 'light gray', 'dark blue'),
+    ('footer_error', 'white', 'dark red'),
     ('prompt', 'black', 'dark green'),
     ]
 
@@ -77,14 +78,18 @@ class UI():
 
     ##########
 
-    def set_status(self, text=None):
+    def set_status(self, text=None, error=False):
         if text:
             T = [urwid.Text(text)]
         else:
             T = [('pack', urwid.Text('Xapers [{}]'.format(len(self.buffers)))),
                  urwid.Text(self.default_status_string, align='right'),
-                 ]
-        self.view.set_footer(urwid.AttrMap(urwid.Columns(T), 'footer'))
+            ]
+        if error:
+            palette = 'footer_error'
+        else:
+            palette = 'footer'
+        self.view.set_footer(urwid.AttrMap(urwid.Columns(T), palette))
 
     def newbuffer(self, cmd):
         if not cmd:
