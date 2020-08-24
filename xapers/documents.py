@@ -24,7 +24,7 @@ import xapian
 
 from . import util
 from .parser import parse_data
-from .source import Sources
+from .sources import Sources
 from .bibtex import Bibtex
 
 ##################################################

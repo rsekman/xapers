@@ -19,4 +19,4 @@ Jameson Rollins <jrollins@finestructure.net>
 """
 from .database import Database
 from .documents import Document
-from .source import Sources
+from .sources import Sources
