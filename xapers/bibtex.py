@@ -22,6 +22,7 @@ import os
 import io
 import re
 import json
+
 import pybtex
 from pybtex.bibtex.utils import split_name_list
 from pybtex.database import Entry, Person
@@ -120,7 +121,8 @@ class Bibentry():
 
     def set_file(self, path):
         # FIXME: what's the REAL proper format for this
-        self.entry.fields['file'] = ':%s:%s' % (path, 'pdf')
+        mimetype = 'pdf'
+        self.entry.fields['file'] = f':{path}:{mimetype}'
 
     def get_file(self):
         """Returns file path if file field exists.
