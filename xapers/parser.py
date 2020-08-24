@@ -14,14 +14,16 @@ for more details.
 You should have received a copy of the GNU General Public License
 along with xapers.  If not, see <https://www.gnu.org/licenses/>.
 
-Copyright 2012-2017
+Copyright 2012-2020
 Jameson Rollins <jrollins@finestructure.net>
 """
 
 import os
 
+
 class ParseError(Exception):
     pass
+
 
 def parse_data(data, mimetype='pdf'):
     """Parse binary data of specified mime type into text (str)
@@ -40,6 +42,7 @@ def parse_data(data, mimetype='pdf'):
         raise ParseError("Could not parse file: %s" % e)
 
     return text
+
 
 def parse_file(path):
     """Parse file for text (str)

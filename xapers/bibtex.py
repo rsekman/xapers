@@ -14,12 +14,11 @@ for more details.
 You should have received a copy of the GNU General Public License
 along with xapers.  If not, see <https://www.gnu.org/licenses/>.
 
-Copyright 2012-2017
+Copyright 2012-2020
 Jameson Rollins <jrollins@finestructure.net>
 """
 
 import os
-import sys
 import io
 import re
 import json
@@ -32,19 +31,20 @@ from pybtex.database.output import bibtex as outparser
 
 def clean_bib_string(string):
     for char in ['{', '}']:
-        string = string.replace(char,'')
+        string = string.replace(char, '')
     return string
 
 ##################################################
+
 
 class BibtexError(Exception):
     """Base class for Xapers bibtex exceptions."""
     def __init__(self, msg):
         self.msg = msg
+
     def __str__(self):
         return self.msg
 
-##################################################
 
 class Bibtex():
     """Represents a bibtex database.
@@ -90,7 +90,6 @@ class Bibtex():
             raise StopIteration
         return self[self.index]
 
-##################################################
 
 class Bibentry():
     """Represents an individual entry in a bibtex database.
@@ -159,7 +158,6 @@ class Bibentry():
         writer = outparser.Writer(encoding='utf-8')
         writer.write_file(self._entry2db(), path)
 
-##################################################
 
 def data2bib(data, key, type='article'):
     """Convert a python dict into a Bibentry object."""

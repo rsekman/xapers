@@ -2,6 +2,7 @@ import urllib.request, urllib.parse, urllib.error
 from html.parser import HTMLParser
 from xapers.bibtex import data2bib
 
+
 description = "Open access e-print service"
 
 url = 'https://arxiv.org/'
@@ -12,6 +13,7 @@ url_regex = 'https?://arxiv.org/(?:abs|pdf|format)/([^/]*)'
 
 # https://arxiv.org/help/arxiv_identifier
 scan_regex = 'arXiv:([0-9]{4}\.[0-9]{4,5})(?:v[0-9]+)?'
+
 
 # html parser override to override handler methods
 class MyHTMLParser(HTMLParser):
@@ -60,6 +62,7 @@ class MyHTMLParser(HTMLParser):
         if tag == 'head':
             self.lefthead = True
 
+
 def fetch_bibtex(id):
     url = url_format % id
 
@@ -80,6 +83,7 @@ def fetch_bibtex(id):
         }
 
     return data2bib(data, 'arxiv:%s' % id)
+
 
 def fetch_file(id):
     url = 'https://arxiv.org/pdf/%s' % id

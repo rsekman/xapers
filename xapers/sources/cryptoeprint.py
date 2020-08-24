@@ -2,6 +2,7 @@ import urllib.request, urllib.parse, urllib.error
 from html.parser import HTMLParser
 import codecs
 
+
 description = "Cryptology ePrint Archive"
 
 url = "https://eprint.iacr.org/"
@@ -14,10 +15,10 @@ url_regex = 'https?://eprint.iacr.org/(\d{4,}/\d{3,})'
 # think there is one, because i think the submission process happens
 # after the pdf is formalized.
 
-
 # custom definitions for IACR eprints:
 bibtex_url = 'https://eprint.iacr.org/eprint-bin/cite.pl?entry=%s'
 pdf_url = 'https://eprint.iacr.org/%s.pdf'
+
 
 # html parser override to override handler methods
 class IACRParser(HTMLParser):

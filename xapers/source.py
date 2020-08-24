@@ -14,7 +14,7 @@ for more details.
 You should have received a copy of the GNU General Public License
 along with xapers.  If not, see <https://www.gnu.org/licenses/>.
 
-Copyright 2012-2017
+Copyright 2012-2020
 Jameson Rollins <jrollins@finestructure.net>
 """
 
@@ -24,21 +24,24 @@ import pkgutil
 from urllib.parse import urlparse
 
 from . import sources
-from .parser import parse_file
 
 ##################################################
 
+
 class SourceError(Exception):
     pass
+
 
 class SourceAttributeError(SourceError):
     def __init__(self, source, msg):
         self.source = source
         self.msg = msg
+
     def __str__(self):
         return "Source '%s' does not implement the %s." % (self.source.name, self.msg)
 
 ##################################################
+
 
 class Source(object):
     """Xapers class representing an online document source.
@@ -112,6 +115,7 @@ class Source(object):
             raise SourceAttributeError(self, "fetch_file() function") from e
         return func(id)
 
+
 class SourceItem(Source):
     """Xapers class representing an item from an online source.
 
@@ -154,6 +158,7 @@ class SourceItem(Source):
 
 ##################################################
 
+
 class Sources(object):
     def __init__(self):
         self.sourcespath = sources.__path__
@@ -163,7 +168,8 @@ class Sources(object):
                 if path:
                     self.sourcespath.insert(0, path)
         else:
-            self.sourcespath.insert(0, os.path.expanduser(os.path.join('~','.xapers','sources')))
+            self.sourcespath.insert(0, os.path.expanduser(
+                os.path.join('~', '.xapers', 'sources')))
 
         self._sources = {}
         for (loader, name, ispkg) in pkgutil.walk_packages(self.sourcespath):
