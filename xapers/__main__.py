@@ -35,7 +35,7 @@ from .database import (
 )
 from .documents import Document
 from .sources import Sources, SourceError, SourceAttributeError
-from .parser import parse_data, ParseError
+from .parsers import parse_data, ParseError
 from .bibtex import Bibtex, BibtexError
 from . import nci
 

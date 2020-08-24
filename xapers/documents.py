@@ -23,8 +23,8 @@ import shutil
 import xapian
 
 from . import util
-from .parser import parse_data
 from .sources import Sources
+from .parsers import parse_data
 from .bibtex import Bibtex
 
 ##################################################
