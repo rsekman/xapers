@@ -14,7 +14,7 @@ for more details.
 You should have received a copy of the GNU General Public License
 along with xapers.  If not, see <https://www.gnu.org/licenses/>.
 
-Copyright 2012-2017
+Copyright 2012-2020
 Jameson Rollins <jrollins@finestructure.net>
 """
 
@@ -30,25 +30,32 @@ from .documents import Documents, Document
 
 ##################################################
 
+
 class DatabaseError(Exception):
     """Base class for Xapers database exceptions."""
     def __init__(self, msg):
         self.msg = msg
+
     def __str__(self):
         return self.msg
+
 
 class DatabaseUninitializedError(DatabaseError):
     pass
 
+
 class DatabaseInitializationError(DatabaseError):
     pass
+
 
 class DatabaseLockError(DatabaseError):
     pass
 
+
 DatabaseModifiedError = xapian.DatabaseModifiedError
 
 ##################################################
+
 
 class Database():
     """Represents a Xapers database"""
@@ -145,6 +152,7 @@ class Database():
         else:
             self.xapian = xapian.Database(xapian_path)
 
+        # FIXME: should this be settable?
         stemmer = xapian.Stem("english")
 
         # The Xapian TermGenerator
@@ -162,6 +170,7 @@ class Database():
         # add boolean internal prefixes
         for name, prefix in self.BOOLEAN_PREFIX.items():
             self.query_parser.add_boolean_prefix(name, prefix)
+
         # for prefixes that can be applied multiply to the same
         # document (like tags) set the filter grouping to use AND:
         # https://xapian.org/docs/apidoc/html/classXapian_1_1QueryParser.html#a67d25f9297bb98c2101a03ff3d60cf30
@@ -202,6 +211,8 @@ class Database():
     def reopen(self):
         self.xapian.reopen()
 
+    ########################################
+
     def __contains__(self, docid):
         try:
             self.xapian.get_document(docid)
@@ -210,16 +221,22 @@ class Database():
             return False
 
     def __getitem__(self, docid):
-        if type(docid) not in [int, int]:
+        if not isinstance(docid, int):
             raise TypeError("docid must be an int")
         xapian_doc = self.xapian.get_document(docid)
         return Document(self, xapian_doc)
 
-    ########################################
-
     # generate a new doc id, based on the last availabe doc id
     def _generate_docid(self):
         return self.xapian.get_lastdocid() + 1
+
+    def replace_document(self, docid, doc):
+        """Replace (sync) document to database."""
+        self.xapian.replace_document(docid, doc)
+
+    def delete_document(self, docid):
+        """Delete document from database."""
+        self.xapian.delete_document(docid)
 
     ########################################
 
@@ -311,7 +328,7 @@ class Database():
         return Documents(self, mset)
 
     def count(self, query_string):
-        """Count documents matching search terms."""
+        """Count documents matching query."""
         return self._search(query_string).get_matches_estimated()
 
     def _doc_for_term(self, term):
@@ -340,16 +357,6 @@ class Database():
         """Return document for bibtex key."""
         term = self._find_prefix('key') + bibkey
         return self._doc_for_term(term)
-
-    ########################################
-
-    def replace_document(self, docid, doc):
-        """Replace (sync) document to database."""
-        self.xapian.replace_document(docid, doc)
-
-    def delete_document(self, docid):
-        """Delete document from database."""
-        self.xapian.delete_document(docid)
 
     ########################################
 
