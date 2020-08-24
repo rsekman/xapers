@@ -191,7 +191,7 @@ def main():
 
         if view and docid:
             nci = import_nci()
-            nci.UI(cmd=['search', 'id:'+str(docid)])
+            nci.UI(cli.initdb(), cmd=['search', 'id:'+str(docid)])
 
     ########################################
     elif cmd in ['import', 'i']:
@@ -320,7 +320,7 @@ def main():
         else:
             query = make_query_string(sys.argv[2:], require=False)
             args = ['search', query]
-        nci.UI(cmd=args)
+        nci.UI(cli.initdb(), cmd=args)
 
     ########################################
     elif cmd in ['tag', 't']:

@@ -4,7 +4,6 @@ import collections
 
 import urwid
 
-from ..cli import initdb
 from ..database import DatabaseLockError, DatabaseModifiedError
 
 
@@ -266,7 +265,7 @@ class DocItem(urwid.WidgetWrap):
             self.ui.set_status("No tags set.")
             return
         try:
-            with initdb(writable=True) as db:
+            with self.ui.write_db() as db:
                 doc = db[self.doc.docid]
                 for tag in tag_string.split():
                     if tag[0] == '+':
@@ -517,7 +516,7 @@ class Search(urwid.Frame):
             else:
                 tags_add.append(tag)
         try:
-            with initdb(writable=True) as db:
+            with self.ui.write_db() as db:
                 count = db.count(self.query)
                 for doc in db.search(self.query):
                     doc.add_tags(tags_add)

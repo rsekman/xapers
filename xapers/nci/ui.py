@@ -24,7 +24,7 @@ import collections
 
 import urwid
 
-from ..cli import initdb
+from ..database import Database
 from . import search
 from . import bibview
 from . import help
@@ -53,8 +53,8 @@ class UI():
     search_history = []
     tag_history = []
 
-    def __init__(self, cmd=None):
-        self.db = initdb()
+    def __init__(self, db, cmd=None):
+        self.db = db
 
         # FIXME: set this properly
         self.palette = list(set(PALETTE) | set(search.PALETTE))
@@ -76,6 +76,9 @@ class UI():
         self.newbuffer(cmd)
 
         self.mainloop.run()
+
+    def write_db(self):
+        return Database(self.db.root, writable=True)
 
     ##########
 
