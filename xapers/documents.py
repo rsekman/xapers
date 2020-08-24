@@ -87,14 +87,14 @@ class Document():
             # use specified docid if provided
             if docid:
                 if docid in self.db:
-                    raise DocumentError('Document already exists for id %d.' % docid)
+                    raise DocumentError(f"Document already exists for id {docid}.")
                 self.docid = docid
             else:
                 self.docid = self.db._generate_docid()
             self._add_boolean_term(self.db._find_prefix('id'), self.docid)
 
         # specify a directory in the Xapers root for document data
-        self.docdir = os.path.join(self.db.root, '%010d' % self.docid)
+        self.docdir = os.path.join(self.db.root, "{:010d}".format(self.docid))
 
         self.bibentry = None
 
@@ -116,7 +116,7 @@ class Document():
     def _make_docdir(self):
         if os.path.exists(self.docdir):
             if not os.path.isdir(self.docdir):
-                raise DocumentError('File exists at intended docdir location: %s' % self.docdir)
+                raise DocumentError(f"File exists at intended docdir location: {self.docdir}")
         else:
             os.makedirs(self.docdir)
 
@@ -314,7 +314,7 @@ class Document():
         sids = []
         for source in self.term_iter('source'):
             for oid in self._term_iter(self.db._make_source_prefix(source)):
-                sids.append('%s:%s' % (source, oid))
+                sids.append(f"{source}:{oid}")
         return sids
 
     # TAGS

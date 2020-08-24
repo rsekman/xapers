@@ -118,7 +118,7 @@ class Database():
             return self.NUMBER_VALUE_FACET[name]
 
     def _make_source_prefix(self, source):
-        return 'X%s|' % (source.upper())
+        return 'X{}|'.format(source.upper())
 
     ########################################
 
@@ -138,9 +138,9 @@ class Database():
                 os.makedirs(xapers_path)
             else:
                 if os.path.exists(self.root):
-                    raise DatabaseInitializationError("Xapers directory '%s' does not contain a database." % (self.root))
+                    raise DatabaseInitializationError(f"Xapers directory '{self.root}' does not contain a database.")
                 else:
-                    raise DatabaseUninitializedError("Xapers directory '%s' not found." % (self.root))
+                    raise DatabaseUninitializedError(f"Xapers directory '{self.root}' not found.")
 
         # the Xapian db
         xapian_path = os.path.join(xapers_path, 'xapian')
@@ -263,7 +263,7 @@ class Database():
         for source in self.term_iter('source'):
             # FIXME: do this more efficiently
             for oid in self._term_iter(self._make_source_prefix(source)):
-                yield '%s:%s' % (source, oid)
+                yield f"{source}:{oid}"
 
     def get_sids(self):
         """Get all source ids in database as a list"""
