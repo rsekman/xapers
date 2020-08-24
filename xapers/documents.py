@@ -14,7 +14,7 @@ for more details.
 You should have received a copy of the GNU General Public License
 along with xapers.  If not, see <https://www.gnu.org/licenses/>.
 
-Copyright 2012-2017
+Copyright 2012-2020
 Jameson Rollins <jrollins@finestructure.net>
 """
 
@@ -29,14 +29,17 @@ from .bibtex import Bibtex
 
 ##################################################
 
+
 class DocumentError(Exception):
     """Base class for Xapers document exceptions."""
     def __init__(self, msg):
         self.msg = msg
+
     def __str__(self):
         return self.msg
 
 ##################################################
+
 
 class Documents():
     """Represents a set of Xapers documents given a Xapian mset."""
@@ -265,7 +268,7 @@ class Document():
 
         Added file will have the same name.
 
-        File will not copied in to docdir until sync().
+        File will not be copied to docdir until sync().
 
         """
         with open(infile, 'br') as f:
@@ -286,7 +289,6 @@ class Document():
             path = os.path.basename(path)
             list.append(os.path.join(self.docdir, path))
         return list
-
 
     ########################################
 
