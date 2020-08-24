@@ -14,7 +14,7 @@ test_description='basic command line usage.'
 test_expect_code 1 'fail search without database' \
     'xapers search tag:foo'
 
-test_expect_code 1 'fail to add without file or source' \
+test_expect_code 2 'fail to add without file or source' \
     'xapers add --tags=new'
 
 test_begin_subtest 'add file without source'
@@ -77,7 +77,7 @@ id:3 [] {fake:1234} (qux) "When the liver meats the pavement"
 EOF
 test_expect_equal_file OUTPUT EXPECTED
 
-test_expect_code 1 'fail to add non-existant file' \
+test_expect_code 2 'fail to add non-existant file' \
     'xapers add --file=foo.pdf'
 
 test_expect_code 1 'fail to add non-existant source' \
@@ -152,7 +152,7 @@ test_begin_subtest 'count search'
 output=`xapers count tag:new`
 test_expect_equal "$output" 4
 
-test_expect_code 1 'fail search without query' \
+test_expect_code 2 'fail search without query' \
     'xapers search'
 
 test_begin_subtest 'search all'
@@ -318,7 +318,7 @@ EOF
 test_expect_equal_file OUTPUT EXPECTED
 
 test_begin_subtest 'search --output=sources all'
-xapers search --output=sources '*' >OUTPUT
+xapers search --output=sources '*' | sort >OUTPUT
 cat <<EOF >EXPECTED
 arxiv:1235
 doi:10.9999/FOO.1
@@ -334,7 +334,7 @@ EOF
 test_expect_equal_file OUTPUT EXPECTED
 
 test_begin_subtest 'search --output=keys all'
-xapers search --output=keys '*' >OUTPUT
+xapers search --output=keys '*' | sort >OUTPUT
 cat <<EOF >EXPECTED
 30929234
 Good_Bad_Up_Down_Left_Right_et_al._2012
@@ -405,12 +405,28 @@ cat <<EOF >EXPECTED
 EOF
 test_expect_equal_file OUTPUT EXPECTED
 
+test_begin_subtest 'dump tags'
+xapers tags tag:new >OUTPUT
+cat <<EOF >EXPECTED
+bar
+foo
+new
+EOF
+test_expect_equal_file OUTPUT EXPECTED
+
+test_begin_subtest 'find similar'
+xapers similar $DOC_DIR/3.pdf >OUTPUT
+cat <<EOF >EXPECTED
+id:3 [] {fake:1234} (qux) "When the liver meats the pavement"
+EOF
+test_expect_equal_file OUTPUT EXPECTED
+
 ################################################################
 
-test_expect_code 1 'fail tag without operation' \
+test_expect_code 2 'fail tag without operation' \
     'xapers tag tag:foo'
 
-test_expect_code 1 'fail tag without search' \
+test_expect_code 2 'fail tag without search' \
     'xapers tag +baz'
 
 test_begin_subtest 'add tag'
@@ -430,7 +446,7 @@ EOF
 test_expect_equal_file "$XAPERS_ROOT"/0000000001/tags EXPECTED
 
 test_begin_subtest 'remove tag'
-xapers tag -baz -- tag:baz
+xapers tag ,-baz -- tag:baz
 xapers search tag:baz >OUTPUT
 cat <<EOF >EXPECTED
 EOF
@@ -444,7 +460,7 @@ EOF
 test_expect_equal_file "$XAPERS_ROOT"/0000000001/tags EXPECTED
 
 test_begin_subtest 'add and remove tags'
-xapers tag -foo +zzz -- tag:foo and tag:zzz
+xapers tag -foo,+zzz -- tag:foo and tag:zzz
 xapers search tag:foo and tag:zzz >OUTPUT
 cat <<EOF >EXPECTED
 EOF
@@ -454,7 +470,7 @@ test_expect_equal_file OUTPUT EXPECTED
 
 rm -rf "$TMP_DIRECTORY"/export
 
-test_expect_code 1 'fail export no query' \
+test_expect_code 2 'fail export no query' \
     'xapers export $TMP_DIRECTORY/export'
 
 test_begin_subtest 'export all'
@@ -493,7 +509,7 @@ id:5 [] {} (new) ""
 EOF
 test_expect_equal_file OUTPUT EXPECTED
 
-test_expect_code 1 'fail delete with no query' \
+test_expect_code 2 'fail delete with no query' \
     "xapers delete"
 
 # purge the db from the root
@@ -513,7 +529,7 @@ id:5 [] {} (new) ""
 EOF
 test_expect_equal_file OUTPUT EXPECTED
 
-test_begin_subtest 'delete single document noprompt'
+test_begin_subtest 'delete single document'
 echo 'yes' | xapers delete id:2
 xapers search '*' >OUTPUT
 cat <<EOF >EXPECTED
@@ -524,18 +540,16 @@ id:5 [] {} (new) ""
 EOF
 test_expect_equal_file OUTPUT EXPECTED
 
-test_begin_subtest 'delete document search w/ prompt'
-xapers delete --noprompt lorem
+test_begin_subtest 'force delete document search'
+xapers delete --force lorem
 xapers search lorem >OUTPUT
 cat <<EOF >EXPECTED
 EOF
 test_expect_equal_file OUTPUT EXPECTED
 
-test_expect_code 1 'check for deleted docdirs' "
-test -d $XAPERS_ROOT/0000000001 \
-|| test -d $XAPERS_ROOT/0000000002 \
-|| test -d $XAPERS_ROOT/0000000005
-"
+test_expect_code 1 'check for deleted doc 1 dir' "test -d $XAPERS_ROOT/0000000001"
+test_expect_code 1 'check for deleted doc 2 dir' "test -d $XAPERS_ROOT/0000000002"
+test_expect_code 1 'check for deleted doc 5 dir' "test -d $XAPERS_ROOT/0000000005"
 
 ################################################################
 

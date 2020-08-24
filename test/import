@@ -6,7 +6,7 @@ test_description='bibtex database importing.'
 
 ################################################################
 
-test_expect_code 1 'fail import without bibtex' \
+test_expect_code 2 'fail import without bibtex' \
     'xapers import'
 
 sed "s|__DOC_DIR__|$DOC_DIR|g" <"$DOC_DIR"/all.bib >all.bib

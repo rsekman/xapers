@@ -100,10 +100,10 @@ class UI():
             cmd = ['search', '*']
 
         if cmd[0] == 'search':
-            query = ' '.join(cmd[1:])
+            query = cmd[1]
             buf = search.Search(self, query)
         elif cmd[0] == 'bibview':
-            query = ' '.join(cmd[1:])
+            query = cmd[1]
             buf = bibview.Bibview(self, query)
         elif cmd[0] == 'help':
             target = None
