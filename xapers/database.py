@@ -186,6 +186,13 @@ class Database():
             name = source.name
             self.query_parser.add_boolean_prefix(name, self._make_source_prefix(name))
 
+    def __repr__(self):
+        return '<Xapers {} {}, writable={}>'.format(
+            self.__class__.__name__,
+            self.root,
+            isinstance(self.xapian, xapian.WritableDatabase),
+        )
+
     def __enter__(self):
         return self
 

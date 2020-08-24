@@ -100,6 +100,13 @@ class Document():
 
         self._infiles = {}
 
+    def __repr__(self):
+        return '<Xapers {} id:{} {}>'.format(
+            self.__class__.__name__,
+            self.docid,
+            self.docdir,
+        )
+
     def get_docid(self):
         """Return document id of document."""
         return self.docid
