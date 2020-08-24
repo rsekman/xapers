@@ -233,14 +233,13 @@ class Sources(object):
         elif o.scheme != '' and o.path != '':
             return self.get_source(o.scheme, o.path)
 
-    def scan_file(self, file):
-        """Scan document file for source identifiers
+    def scan_text(self, text):
+        """Scan text for source identifiers
 
         Source 'scan_regex' attributes are used.
         Returns a list of SourceItem objects.
 
         """
-        text = parse_file(file)
         items = set()
         for source in self:
             try:

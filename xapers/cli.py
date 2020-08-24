@@ -26,7 +26,7 @@ import readline
 from . import database
 from .documents import Document
 from .source import Sources, SourceError
-from .parser import ParseError
+from .parser import parse_file, ParseError
 from .bibtex import Bibtex, BibtexError
 
 ############################################################
@@ -177,7 +177,7 @@ def add(db, query_string, infile=None, sid=None, tags=None, prompt=False):
 
             print("Scanning document for source identifiers...", file=sys.stderr)
             try:
-                ss = sources.scan_file(infile)
+                ss = sources.scan_text(parse_file(infile))
             except ParseError as e:
                 print("\n", file=sys.stderr)
                 print("Parse error: %s" % e, file=sys.stderr)

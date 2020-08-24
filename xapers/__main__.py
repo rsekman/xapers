@@ -25,7 +25,7 @@ import signal
 from . import cli
 from .bibtex import Bibtex
 from .source import Sources, SourceAttributeError
-from .parser import ParseError
+from .parser import parse_file, ParseError
 
 ########################################################################
 
@@ -500,7 +500,7 @@ def main():
             sys.exit(1)
 
         try:
-            items = Sources().scan_file(infile)
+            items = Sources().scan_text(parse_file(infile))
         except ParseError as e:
             print("Parse error: %s" % e, file=sys.stderr)
             print("Is file '%s' a PDF?" % infile, file=sys.stderr)
