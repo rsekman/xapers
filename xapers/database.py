@@ -331,6 +331,40 @@ class Database():
         """Count documents matching query."""
         return self._search(query_string).get_matches_estimated()
 
+    def find_similar(self, text):
+        """Find documents similar to some raw (non-query) text.
+
+        This is useful for determing if a document already exists in
+        the database.
+
+        """
+        # the technique here is to generate terms for the provided
+        # text and then create an "elite set" query based on those
+        # terms.  We use the CoordWeight weighting scheme so that the
+        # weight can be simply normalized by the elite set term count,
+        # therefore providing a way to use an absolute threshold for
+        # matches.
+
+        # this specifies the number of terms used in the elite set.
+        ELITE_TERM_COUNT = 42
+
+        # score threshold
+        THRESHOLD = 0.9
+
+        self.term_gen.set_document(xapian.Document())
+        self.term_gen.index_text(text)
+        term_list = [t.term for t in iter(self.term_gen.get_document())]
+        query = xapian.Query(xapian.Query.OP_ELITE_SET, term_list, ELITE_TERM_COUNT)
+        enquire = xapian.Enquire(self.xapian)
+        enquire.set_weighting_scheme(xapian.CoordWeight())
+        enquire.set_query(query)
+        for match in enquire.get_mset(0, self.xapian.get_doccount()):
+            score = match.weight / ELITE_TERM_COUNT
+            if score > THRESHOLD:
+                yield Document(self, match.document), score
+            else:
+                break
+
     def _doc_for_term(self, term):
         enquire = xapian.Enquire(self.xapian)
         query = xapian.Query(term)
