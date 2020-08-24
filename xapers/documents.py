@@ -322,6 +322,7 @@ class Document():
     # TAGS
     def add_tags(self, tags):
         """Add tags from list to document."""
+        assert set(tags).isdisjoint([None, '']), "Null tags are not allowed."
         prefix = self.db._find_prefix('tag')
         for tag in tags:
             self._add_boolean_term(prefix, tag)
