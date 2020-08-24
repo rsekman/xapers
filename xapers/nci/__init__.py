@@ -14,12 +14,13 @@ for more details.
 You should have received a copy of the GNU General Public License
 along with xapers.  If not, see <https://www.gnu.org/licenses/>.
 
-Copyright 2012-2017
+Copyright 2012-2020
 Jameson Rollins <jrollins@finestructure.net>
 """
 
 import os
 import logging
+
 if os.getenv('XAPERS_LOG_FILE'):
     logging.basicConfig(filename=os.getenv('XAPERS_LOG_FILE'),
                         level=logging.DEBUG)

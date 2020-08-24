@@ -1,30 +1,12 @@
-"""
-This file is part of xapers.
-
-Xapers is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the
-Free Software Foundation, either version 3 of the License, or (at your
-option) any later version.
-
-Xapers is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with xapers.  If not, see <https://www.gnu.org/licenses/>.
-
-Copyright 2012-2017
-Jameson Rollins <jrollins@finestructure.net>
-"""
-
 import os
-import urwid
 import subprocess
 import collections
 
+import urwid
+
 from ..cli import initdb
 from ..database import DatabaseLockError, DatabaseModifiedError
+
 
 PALETTE = [
     ('head', 'dark blue, bold', ''),
@@ -45,6 +27,7 @@ PALETTE = [
 
 ############################################################
 
+
 def xdg_open(path):
     """open document file"""
     with open(os.devnull) as devnull:
@@ -53,6 +36,7 @@ def xdg_open(path):
                          stdout=devnull,
                          stderr=devnull)
 
+
 def xclip(text):
     """Copy text into X clipboard."""
     p = subprocess.Popen(["xclip", "-i"],
@@ -60,6 +44,7 @@ def xclip(text):
     p.communicate(text.encode('utf-8'))
 
 ############################################################
+
 
 class DocItem(urwid.WidgetWrap):
 
@@ -306,6 +291,7 @@ class DocItem(urwid.WidgetWrap):
 
 ############################################################
 
+
 class DocWalker(urwid.ListWalker):
     def __init__(self, ui, docs):
         self.ui = ui
@@ -334,6 +320,7 @@ class DocWalker(urwid.ListWalker):
         return pos - 1
 
 ############################################################
+
 
 class Search(urwid.Frame):
 

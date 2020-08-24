@@ -14,21 +14,21 @@ for more details.
 You should have received a copy of the GNU General Public License
 along with xapers.  If not, see <https://www.gnu.org/licenses/>.
 
-Copyright 2012-2017
+Copyright 2012-2020
 Jameson Rollins <jrollins@finestructure.net>
 """
 
 import sys
-import urwid
 import logging
 import collections
+
+import urwid
 
 from ..cli import initdb
 from . import search
 from . import bibview
 from . import help
 
-############################################################
 
 PALETTE = [
     ('header', 'light gray', 'dark blue'),
@@ -37,6 +37,7 @@ PALETTE = [
     ('footer_error', 'white', 'dark red'),
     ('prompt', 'black', 'dark green'),
     ]
+
 
 class UI():
 
@@ -173,6 +174,7 @@ class UI():
             eval(cmd)
 
 ############################################################
+
 
 class PromptEdit(urwid.Edit, metaclass=urwid.signals.MetaSignals):
     signals = ['done']
