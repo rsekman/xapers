@@ -395,7 +395,9 @@ class Database():
     ########################################
 
     def restore(self, log=False):
-        """Restore a database from an existing root."""
+        """Restore database from an existing root.
+
+        """
         docdirs = os.listdir(self.root)
         docdirs.sort()
         for ddir in docdirs:
@@ -420,13 +422,13 @@ class Database():
                 # skip empty directories
                 continue
 
-            if log:
-                print('  docid:', docid, file=sys.stderr)
-
             try:
                 doc = self[docid]
             except xapian.DocNotFoundError:
                 doc = Document(self, docid=docid)
+
+            if log:
+                print(f" {doc.docstr}", file=sys.stderr)
 
             for dfile in docfiles:
                 dpath = os.path.join(docdir, dfile)
