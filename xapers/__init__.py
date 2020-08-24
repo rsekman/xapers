@@ -14,12 +14,9 @@ for more details.
 You should have received a copy of the GNU General Public License
 along with xapers.  If not, see <https://www.gnu.org/licenses/>.
 
-Copyright 2012-2017
+Copyright 2012-2020
 Jameson Rollins <jrollins@finestructure.net>
 """
-
 from .database import Database
-from .database import DatabaseError
-from .database import DatabaseUninitializedError
-from .database import DatabaseLockError
-from .documents import Documents, Document
+from .documents import Document
+from .source import Sources
