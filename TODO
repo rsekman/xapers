@@ -1,22 +1,21 @@
+* catch query parse errors (see below)
+* db version
 * unique bibtex keys (handle conflicting) (use id?)
-* make 'date' alias of 'year'
-* nci: translate tex in fields
-* translate journal abbreviations in bibtex
+* rework db/doc interface
+   * doc is just directory and xapian_doc
+   * db does write/index on sync
 * need *something* for docs without sources
    * store at least URL
-* "notes" for documents (editable txt file)
 
+* nci: translate tex in fields
+* translate journal abbreviations in bibtex
+* "notes" for documents (editable txt file)
 * add only opens writable db on doc.sync()
-* db version
-* rename files when being added?
 * separate add and update commands
 * set/get title, author, tags as data or values (is this faster?)
 * gtk gui, with pdf thumbs:
    "convert -thumbnail 500x -background white -alpha remove file.pdf[0] thumb.png"
    ([0] == pdf page)
-* rework db/doc interface
-   * doc is just directory and xapian_doc
-   * db does write/index on sync
 * db: can we force source prefixes to be OP_OR?
 
 doc:
@@ -59,11 +58,6 @@ parser:
 
 BUGS
 ====
-
-* nci choaks on unknown sources:
-  File "/usr/lib/python2.7/dist-packages/xapers/source.py", line 181, in get_source
-    raise SourceError("unknown source: %s" % name)
-  xapers.source.SourceError: unknown source: url
 
 * uncaught QueryParserError:
 
