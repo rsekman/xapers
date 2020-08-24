@@ -103,16 +103,16 @@ class Document():
 
         self._infiles = {}
 
+    @property
+    def docstr(self):
+        return "id:{:d}".format(self.docid)
+
     def __repr__(self):
-        return '<Xapers {} id:{} {}>'.format(
+        return '<Xapers {} {} {}>'.format(
             self.__class__.__name__,
-            self.docid,
+            self.docstr,
             self.docdir,
         )
-
-    def get_docid(self):
-        """Return document id of document."""
-        return self.docid
 
     ########################################
 

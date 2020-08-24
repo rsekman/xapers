@@ -75,7 +75,7 @@ class DocItem(urwid.WidgetWrap):
     def __init__(self, ui, doc, doc_ind, total_docs):
         self.ui = ui
         self.doc = doc
-        self.docid = 'id:{}'.format(doc.docid)
+        self.docid = doc.docstr
 
         c1width = 10
 
