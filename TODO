@@ -60,9 +60,6 @@ parser:
 BUGS
 ====
 
-* can not add --file when source contains '/'
-  * "xapers add --source=arXiv:hep-th/9806203 --file"
-
 * nci choaks on unknown sources:
   File "/usr/lib/python2.7/dist-packages/xapers/source.py", line 181, in get_source
     raise SourceError("unknown source: %s" % name)

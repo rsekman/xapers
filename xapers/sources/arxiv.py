@@ -1,5 +1,8 @@
-import urllib.request, urllib.parse, urllib.error
+import os
+
+import urllib.request
 from html.parser import HTMLParser
+
 from xapers.bibtex import data2bib
 
 
@@ -82,13 +85,12 @@ def fetch_bibtex(id):
         'url':     url_format % id,
         }
 
-    return data2bib(data, 'arxiv:%s' % id)
+    return data2bib(data, f'arxiv:{id}')
 
 
 def fetch_file(id):
-    url = 'https://arxiv.org/pdf/%s' % id
-    f = urllib.request.urlopen(url)
-    data = f.read()
-    f.close()
-    name = '%s.pdf' % id
+    url = f'https://arxiv.org/pdf/{id}'
+    with urllib.request.urlopen(url) as f:
+        data = f.read()
+    name = os.path.basename(url) + '.pdf'
     return name, data

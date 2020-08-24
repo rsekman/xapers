@@ -1,6 +1,7 @@
-import urllib.request, urllib.parse, urllib.error
-from html.parser import HTMLParser
 import codecs
+
+import urllib.request
+from html.parser import HTMLParser
 
 
 description = "Cryptology ePrint Archive"
@@ -60,9 +61,6 @@ def fetch_bibtex(id):
 
 def fetch_file(id):
     url = pdf_url % id
-
-    f = urllib.request.urlopen(url)
-    pdf = f.read()
-    f.close()
-
+    with urllib.request.urlopen(url) as f:
+        pdf = f.read()
     return (id.split('/').pop() + '.pdf', pdf)

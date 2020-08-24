@@ -1,7 +1,9 @@
-import sys
-import pycurl
 import io
+import sys
 import tempfile
+
+import pycurl
+
 from xapers.bibtex import data2bib
 
 

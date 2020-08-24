@@ -1,4 +1,4 @@
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
 
 
 description = "Digital Object Identifier"
@@ -29,8 +29,6 @@ def fetch_bibtex(id):
     req = urllib.request.Request(url)
     req.add_header('Accept', 'application/x-bibtex')
     req.add_header('Accept-Charset', 'utf-8')
-    f = urllib.request.urlopen(req)
-    # DECODE the returned byte string to get a unicode string
-    bibtex = f.read().decode('utf-8')
-    f.close
+    with urllib.request.urlopen(req) as f:
+        bibtex = f.read().decode('utf-8')
     return bibtex
