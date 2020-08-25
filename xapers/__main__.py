@@ -79,7 +79,7 @@ class QueryAction(argparse.Action):
 
 
 def add_query_arg(parser, required=True, single=False, default=None):
-    help = "search query"
+    help = "search term"
     if required:
         nargs = '+'
     else:
