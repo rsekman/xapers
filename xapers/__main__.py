@@ -360,10 +360,11 @@ resultant entry upon completion.
         raise
 
     db.close()
-    print_doc_summary(doc)
 
-    if args.interactive and doc:
-        nci.UI(cmd=['search', doc.docstr])
+    if args.interactive:
+        nci.UI(initdb(), cmd=['search', doc.docstr])
+    else:
+        print_doc_summary(doc)
 
 
 def cmd_import(parser, args=None):
