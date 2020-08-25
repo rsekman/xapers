@@ -246,6 +246,8 @@ resultant entry upon completion.
     else:
         doc = Document(db)
 
+    args.tags = args.tags.split(',')
+
     # load the file
     if args.file:
         dfile = SourceFile.read(args.file)
@@ -342,7 +344,7 @@ resultant entry upon completion.
     if args.tags:
         try:
             print("Adding tags...", end=' ', file=sys.stderr, flush=True)
-            doc.add_tags(args.tags.split(','))
+            doc.add_tags(args.tags)
             print("done.", file=sys.stderr)
         except:
             print("FAILED.", file=sys.stderr)
