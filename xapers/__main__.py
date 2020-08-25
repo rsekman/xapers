@@ -148,7 +148,7 @@ def prompt_for_file(infile):
 
 def prompt_for_source(sources):
     if sources:
-        readline.set_startup_hook(lambda: readline.insert_text(sources[0].sid))
+        readline.set_startup_hook(lambda: readline.insert_text(sources[0]))
     readline.parse_and_bind("tab: complete")
     completer = Completer(sources)
     readline.set_completer(completer.terms)
@@ -264,13 +264,13 @@ resultant entry upon completion.
     # scan for sources
     if args.interactive and dfile and not args.source:
         print("Scanning document for source identifiers...", file=sys.stderr)
-        doc_sources = Sources().scan_text(dfile.text)
-        nsources = len(doc_sources)
+        sids = [s.sid for s in Sources().scan_text(dfile.text)]
+        nsources = len(sids)
         desc = "source ID" if nsources == 1 else "source IDs"
         print(f"{nsources} {desc} found:", file=sys.stderr)
-        for source in doc_sources:
+        for source in sids:
             print(f"  {source}", file=sys.stderr)
-        args.source = prompt_for_source(doc_sources)
+        args.source = prompt_for_source(sids)
         args.tags = prompt_for_tags(db, args.tags)
 
     # parse source
