@@ -359,6 +359,7 @@ resultant entry upon completion.
         print("FAILED", file=sys.stderr)
         raise
 
+    db.close()
     print_doc_summary(doc)
 
     if args.interactive and doc:
