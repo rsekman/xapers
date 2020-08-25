@@ -60,7 +60,8 @@ class Source(object):
         self.module = module
 
     def __repr__(self):
-        return '<Xapers {} ({})>'.format(self.__class__, self.name, self.module)
+        return '<Xapers {} {}>'.format(
+            self.__class__.__name__, self.name)
 
     def __str__(self):
         return self.name
@@ -131,8 +132,11 @@ class SourceItem(Source):
         self.sid = '{}:{}'.format(self.name, self.id)
 
     def __repr__(self):
-        s = super().__repr__()
-        return '<Xapers {} {}:{}>'.format(self.__class__, s, self.id)
+        return '<Xapers {} {}>'.format(
+            self.__class__.__name__, self.sid)
+
+    def __str__(self):
+        return self.sid
 
     def __hash__(self):
         return hash(self.sid)
