@@ -466,11 +466,28 @@ def cmd_update(parser, args=None):
 def cmd_tag(parser, args=None):
     """add/remove document tags
 
+Tags should be a comma-separated list of tag operations to perform on
+all documents matching the supplied search.  Operations are of the
+form "[OP]TAG" where OP is the operator ('+' to add, '-' to remove)
+and TAG is the tag string itself.  If no operator is specified the tag
+will be added.  For example, the following command will add the tags
+'foo' and 'bar' and remove the tag 'baz':
+
+  xapers tag +foo,bar,-baz ...
+
+If the initial operator is to be '-', prefix the operator with a comma
+(',') to not confuse the argument parser, e.g.:
+
+  xapers tag ,-foo ...
+
+(Suggestions for how to get around this annoyance with python argparse
+would be much appreciated.)
+
     """
     if args is None:
         parser.add_argument(
-            'tags', metavar='+/-TAG[,TAG...]',
-            help="tag operations to apply, command separated (prefix with '-' to remove)",
+            'tags', metavar='[OP]TAG[,[OP]TAG...]',
+            help="comma-separated list of tag operations",
         )
         add_query_arg(parser, required=True)
         return
