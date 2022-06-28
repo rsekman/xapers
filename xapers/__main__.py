@@ -361,8 +361,6 @@ resultant entry upon completion.
         print("FAILED", file=sys.stderr)
         raise
 
-    db.close()
-
     if args.interactive:
         nci.UI(initdb(), cmd=['search', doc.docstr])
     else:
