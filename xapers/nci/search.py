@@ -6,6 +6,8 @@ import urwid
 
 from ..database import DatabaseLockError, DatabaseModifiedError
 
+from .interactable import InteractableMeta, KeyHandler, Interactable
+
 
 PALETTE = [
     ('head', 'dark blue, bold', ''),
@@ -45,7 +47,7 @@ def xclip(text):
 ############################################################
 
 
-class DocItem(urwid.WidgetWrap):
+class Document(Interactable, urwid.WidgetWrap, metaclass=InteractableMeta):
 
     FIELDS = ['title',
               'authors',
@@ -58,22 +60,9 @@ class DocItem(urwid.WidgetWrap):
               #'summary',
               ]
 
-    keys = collections.OrderedDict([
-        ('enter', "viewFile"),
-        ('u', "viewURL"),
-        ('b', "viewBibtex"),
-        ('t', "promptTag"),
-        ('+', "addTags"),
-        ('-', "removeTags"),
-        ('meta i', "copyID"),
-        ('meta u', "copyURL"),
-        ('meta b', "copyBibtex"),
-        ('meta k', "copyKey"),
-        ('meta f', "copyPath"),
-        ])
-
     def __init__(self, ui, doc, doc_ind, total_docs):
         self.ui = ui
+        self.config = self.ui.config
         self.doc = doc
         self.docid = doc.docstr
 
@@ -153,16 +142,10 @@ class DocItem(urwid.WidgetWrap):
 
         self.__super.__init__(w)
 
-    def keypress(self, size, key):
-        if key in self.keys:
-            cmd = eval("self.{}".format(self.keys[key]))
-            cmd()
-        else:
-            return key
-
     ####################
 
-    def viewFile(self):
+    @KeyHandler
+    def viewFile(self, size, key):
         """open document file"""
         paths = self.doc.get_fullpaths()
         if not paths:
@@ -175,7 +158,8 @@ class DocItem(urwid.WidgetWrap):
                 self.ui.set_status('opening file: {}...'.format(path))
             xdg_open(path)
 
-    def viewURL(self):
+    @KeyHandler
+    def viewURL(self, size, key):
         """open document source URL in browser"""
         urls = self.doc.get_urls()
         if not urls:
@@ -186,16 +170,19 @@ class DocItem(urwid.WidgetWrap):
         self.ui.set_status('opening url: {}...'.format(url))
         xdg_open(url)
 
-    def viewBibtex(self):
+    @KeyHandler
+    def viewBibtex(self, size, key):
         """view document bibtex"""
         self.ui.newbuffer(['bibview', self.docid])
 
-    def copyID(self):
+    @KeyHandler
+    def copyID(self, size, key):
         """copy document ID to clipboard"""
         xclip(self.docid)
         self.ui.set_status('yanked docid: {}'.format(self.docid))
 
-    def copyKey(self):
+    @KeyHandler
+    def copyKey(self, size, key):
         """copy document bibtex key to clipboard"""
         bibkey = self.doc.get_key()
         if not bibkey:
@@ -204,7 +191,8 @@ class DocItem(urwid.WidgetWrap):
         xclip(bibkey)
         self.ui.set_status('yanked bibtex key: {}'.format(bibkey))
 
-    def copyPath(self):
+    @KeyHandler
+    def copyPath(self, size, key):
         """copy document file path to clipboard"""
         path = self.doc.get_fullpaths()[0]
         if not path:
@@ -213,7 +201,8 @@ class DocItem(urwid.WidgetWrap):
         xclip(path)
         self.ui.set_status('yanked file path: {}'.format(path))
 
-    def copyURL(self):
+    @KeyHandler
+    def copyURL(self, size, key):
         """copy document source URL to clipboard"""
         urls = self.doc.get_urls()
         if not urls:
@@ -224,7 +213,8 @@ class DocItem(urwid.WidgetWrap):
         xclip(url)
         self.ui.set_status('yanked source url: {}'.format(url))
 
-    def copyBibtex(self):
+    @KeyHandler
+    def copyBibtex(self, size, key):
         """copy document bibtex to clipboard"""
         bibtex = self.doc.get_bibtex()
         if not bibtex:
@@ -233,15 +223,18 @@ class DocItem(urwid.WidgetWrap):
         xclip(bibtex)
         self.ui.set_status('yanked bibtex: %s...' % bibtex.split('\n')[0])
 
-    def addTags(self):
+    @KeyHandler
+    def addTags(self, size, key):
         """add tags to document (space separated)"""
-        self.promptTag('+')
+        self.promptTag(size, key, '+')
 
-    def removeTags(self):
+    @KeyHandler
+    def removeTags(self, size, key):
         """remove tags from document (space separated)"""
-        self.promptTag('-')
+        self.promptTag(size, key, '-')
 
-    def promptTag(self, sign=None):
+    @KeyHandler
+    def promptTag(self, size, key, sign=None):
         """apply tags to document (space separated, +add/-remove)"""
         prompt = "tag document {} (+add -remove): ".format(self.docid)
         initial = ''
@@ -303,7 +296,7 @@ class DocWalker(urwid.ListWalker):
         if pos < 0:
             raise IndexError
         if pos not in self.items:
-            self.items[pos] = DocItem(self.ui, self.docs[pos], pos+1, self.ndocs)
+            self.items[pos] = Document(self.ui, self.docs[pos], pos+1, self.ndocs)
         return self.items[pos]
 
     def set_focus(self, focus):
@@ -320,34 +313,21 @@ class DocWalker(urwid.ListWalker):
 
 ############################################################
 
+# ListBox gobbles arrow keys, so we subclass it to prevent that
+class SearchBox(urwid.ListBox):
+    def keypress(self, size, key):
+        passthrough = ["page down", "page up"]
+        if key in passthrough:
+            urwid.ListBox.keypress(self, size, key)
+        return key
 
-class Search(urwid.Frame):
-
-    keys = collections.OrderedDict([
-        ('n', "nextEntry"),
-        ('down', "nextEntry"),
-        ('p', "prevEntry"),
-        ('up', "prevEntry"),
-        ('N', "pageDown"),
-        ('page down', "pageDown"),
-        (' ', "pageDown"),
-        ('P', "pageUp"),
-        ('page up', "pageUp"),
-        ('<', "firstEntry"),
-        ('>', "lastEntry"),
-        ('a', "archive"),
-        ('o', "toggleSort"),
-        ('l', "filterSearch"),
-        ('meta S', "copySearch"),
-        ('B', "viewBibtex"),
-        ('T', "promptTag"),
-        ('=', "refresh"),
-        ])
+class Search(Interactable, urwid.Frame, metaclass=InteractableMeta):
 
     __sort = collections.deque(['relevance', 'year'])
 
     def __init__(self, ui, query=None):
         self.ui = ui
+        self.config = ui.config
         self.query = query
         super(Search, self).__init__(urwid.SolidFill())
 
@@ -385,7 +365,7 @@ class Search(urwid.Frame):
 
         self.lenitems = count
         self.docwalker = DocWalker(self.ui, docs)
-        self.listbox = urwid.ListBox(self.docwalker)
+        self.listbox = SearchBox(self.docwalker)
         body = self.listbox
         self.set_body(body)
 
@@ -397,26 +377,13 @@ class Search(urwid.Frame):
         if entry and not entry.keypress(size, key):
             return
         # check if we can use key
-        elif key in self.keys:
-            cmd = eval("self.%s" % (self.keys[key]))
-            cmd(size, key)
-        # else we didn't use key so return
-        else:
-            return key
-
-    def help(self):
-        def get_keys(o):
-            for k, cmd in list(o.keys.items()):
-                yield (k, str(getattr(getattr(o, cmd), '__doc__')))
-        yield (None, "Document commands:")
-        for o in get_keys(DocItem):
-            yield o
-        yield (None, "Search commands:")
-        for o in get_keys(Search):
-            yield o
+        return Interactable.keypress(self, size, key)
 
     ##########
+    # Key handlers
+    ##########
 
+    @KeyHandler
     def refresh(self, size, key):
         """refresh current search"""
         self.ui.db.reopen()
@@ -424,11 +391,13 @@ class Search(urwid.Frame):
         # FIXME: try to reset position to closet place in search,
         # rather than resetting to the top
 
+    @KeyHandler
     def toggleSort(self, size, key):
         """toggle search sort order between year/relevance"""
         self.__sort.rotate()
         self.__set_search()
 
+    @KeyHandler
     def filterSearch(self, size, key):
         """modify current search or add additional terms"""
         prompt = 'filter search: {} '.format(self.query)
@@ -441,6 +410,7 @@ class Search(urwid.Frame):
             return
         self.ui.newbuffer(['search', self.query, newquery])
 
+    @KeyHandler
     def nextEntry(self, size, key):
         """next entry"""
         entry, pos = self.listbox.get_focus()
@@ -448,6 +418,7 @@ class Search(urwid.Frame):
         if pos + 1 >= self.lenitems: return
         self.listbox.set_focus(pos + 1)
 
+    @KeyHandler
     def prevEntry(self, size, key):
         """previous entry"""
         entry, pos = self.listbox.get_focus()
@@ -455,25 +426,30 @@ class Search(urwid.Frame):
         if pos == 0: return
         self.listbox.set_focus(pos - 1)
 
+    @KeyHandler
     def pageDown(self, size, key):
         """page down"""
         self.listbox.keypress(size, 'page down')
         # self.listbox.set_focus_valign('bottom')
         # self.prevEntry(None, None)
 
+    @KeyHandler
     def pageUp(self, size, key):
         """page up"""
         self.listbox.keypress(size, 'page up')
         # self.listbox.set_focus_valign('top')
 
+    @KeyHandler
     def lastEntry(self, size, key):
         """last entry"""
         self.listbox.set_focus(-1)
 
+    @KeyHandler
     def firstEntry(self, size, key):
         """first entry"""
         self.listbox.set_focus(0)
 
+    @KeyHandler
     def archive(self, size, key):
         """archive document (remove 'new' tag) and advance"""
         entry = self.listbox.get_focus()[0]
@@ -482,15 +458,18 @@ class Search(urwid.Frame):
         entry.applyTags('-new')
         self.nextEntry(None, None)
 
+    @KeyHandler
     def copySearch(self, size, key):
         """copy current search string to clipboard"""
         xclip(self.query)
         self.ui.set_status('yanked search: {}'.format(self.query))
 
+    @KeyHandler
     def viewBibtex(self, size, key):
         """view bibtex for all documents in current search"""
         self.ui.newbuffer(['bibview', self.query])
 
+    @KeyHandler
     def promptTag(self, size, key):
         """tag all documents in current search"""
         prompt = "tag all (+add -remove): "

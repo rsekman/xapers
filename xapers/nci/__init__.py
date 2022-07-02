@@ -26,9 +26,10 @@ import collections
 import urwid
 
 from ..database import Database
-from . import search
+from .search import Search, Document, PALETTE as SEARCHPALETTE
 from . import bibview
-from . import help
+from .config import Config, Key, Action
+from .interactable import KeyHandler, Interactable, InteractableMeta
 
 
 if os.getenv('XAPERS_LOG_FILE'):
@@ -210,14 +211,7 @@ class PromptEdit(urwid.Edit, metaclass=urwid.signals.MetaSignals):
         self.last_text = self.edit_text
         return super(PromptEdit, self).keypress(size, key)
 
-
-class UI:
-    keys = collections.OrderedDict([
-        ('s', "promptSearch"),
-        ('q', "killBuffer"),
-        ('Q', "quit"),
-        ('?', "help"),
-        ])
+class UI(Interactable, urwid.Frame, metaclass=InteractableMeta):
 
     default_status_string = "s: new search, q: close buffer, Q: quit, ?: help"
     buffers = []
@@ -225,19 +219,20 @@ class UI:
     tag_history = []
 
     def __init__(self, db, cmd=None):
+        urwid.Frame.__init__(self, urwid.SolidFill)
         self.db = db
 
-        # FIXME: set this properly
-        self.palette = list(set(PALETTE) | set(search.PALETTE))
+        self.config = Config()
 
-        self.view = urwid.Frame(urwid.SolidFill())
+        # FIXME: set this properly
+        self.palette = list(set(PALETTE) | set(SEARCHPALETTE))
 
         self.set_status()
 
         self.mainloop = urwid.MainLoop(
-            self.view,
+            self,
             self.palette,
-            unhandled_input=self.keypress,
+            unhandled_input=lambda x: x,
             handle_mouse=False,
             )
         self.mainloop.screen.set_terminal_properties(colors=88)
@@ -264,7 +259,7 @@ class UI:
             palette = 'footer_error'
         else:
             palette = 'footer'
-        self.view.set_footer(urwid.AttrMap(urwid.Columns(T), palette))
+        self.set_footer(urwid.AttrMap(urwid.Columns(T), palette))
 
     def newbuffer(self, cmd):
         if not cmd:
@@ -277,28 +272,13 @@ class UI:
             query = cmd[1]
             buf = bibview.Bibview(self, query)
         elif cmd[0] == 'help':
-            target = None
-            if len(cmd) > 1:
-                target = cmd[1]
-            if isinstance(target, str):
-                target = None
-            buf = help.Help(self, target)
+            buf = Help(self.config)
         else:
-            buf = help.Help(self)
+            buf = Help(self.config)
             self.set_status("Unknown command '%s'." % (cmd[0]))
         self.buffers.append(buf)
-        self.view.set_body(buf)
+        self.set_body(buf)
         self.set_status()
-
-    def killBuffer(self):
-        """close current buffer"""
-        if len(self.buffers) == 1:
-            return
-        self.buffers.pop()
-        buf = self.buffers[-1]
-        self.view.set_body(buf)
-        self.set_status()
-        self.mainloop.draw_screen()
 
     def prompt(self, final, *args, **kwargs):
         """user prompt
@@ -311,22 +291,14 @@ class UI:
         """
         pe = PromptEdit(*args, **kwargs)
         urwid.connect_signal(pe, 'done', self.prompt_done, final)
-        self.view.set_footer(urwid.AttrMap(pe, 'prompt'))
-        self.view.set_focus('footer')
+        self.set_footer(urwid.AttrMap(pe, 'prompt'))
+        self.set_focus('footer')
 
     def prompt_done(self, text, final):
-        self.view.set_focus('body')
+        self.set_focus('body')
         urwid.disconnect_signal(self, self.prompt, 'done', self.prompt_done)
         (func, args) = final
         func(text, *args)
-
-    ##########
-
-    def promptSearch(self):
-        """search database"""
-        prompt = 'search: '
-        self.prompt((self.promptSearch_done, []),
-                    prompt, history=self.search_history)
 
     def promptSearch_done(self, query):
         if not query:
@@ -334,15 +306,79 @@ class UI:
             return
         self.newbuffer(['search', query])
 
-    def quit(self):
+    ##########
+    # Key handlers
+    ##########
+
+    @KeyHandler
+    def promptSearch(self, size, key):
+        """search database"""
+        prompt = 'search: '
+        self.prompt((self.promptSearch_done, []),
+                    prompt, history=self.search_history)
+
+    @KeyHandler
+    def quit(self, size, key):
         """quit"""
         sys.exit()
 
-    def help(self):
+    @KeyHandler
+    def help(self, size, key):
         """help"""
         self.newbuffer(['help', self.buffers[-1]])
 
-    def keypress(self, key):
-        if key in self.keys:
-            cmd = "self.%s()" % (self.keys[key])
-            eval(cmd)
+    @KeyHandler
+    def killBuffer(self, size, key):
+        """close current buffer"""
+        if len(self.buffers) == 1:
+            return
+        self.buffers.pop()
+        buf = self.buffers[-1]
+        self.set_body(buf)
+        self.set_status()
+        self.mainloop.draw_screen()
+
+class Help(urwid.Frame):
+    def __init__(self, config):
+
+        htxt = [urwid.Text("Help")]
+        header = urwid.AttrMap(urwid.Columns(htxt), "header")
+
+        pile = []
+
+        # format command help line
+        def fch(key, cmd, hlp):
+            return urwid.Columns(
+                [
+                    ("fixed", 10, urwid.Text(key)),
+                    ("fixed", 20, urwid.Text(cmd)),
+                    urwid.Text(hlp),
+                ]
+            )
+
+        def addline(key, cmd, hlp):
+            if not key:
+                pile.append(urwid.Text(""))
+                pile.append(urwid.Text(""))
+                pile.append(urwid.Text(hlp))
+                pile.append(urwid.Text(""))
+            else:
+                pile.append(fch(key, cmd, hlp))
+        for w in Interactable.__subclasses__():
+            for k, cmd, h in w._help(config):
+                addline(k, cmd, h)
+
+        body = urwid.ListBox(urwid.SimpleListWalker(pile))
+
+        super(Help, self).__init__(body, header=header)
+
+    def keypress(self, size, key):
+        # ignore help in help
+        if key == "?":
+            return
+        if key == " ":
+            return self.get_body().keypress(size, "page down")
+        return super(Help, self).keypress(size, key)
+
+    def help(self):
+        return []

@@ -47,6 +47,9 @@ setup(
         'xapers.sources',
         'xapers.nci',
         ],
+    package_data={
+        'xapers.nci': ["default.config"]
+    },
     # https://chriswarrick.com/blog/2014/09/15/python-apps-the-right-way-entry_points-and-scripts/
     # should we have a 'gui_scripts' as well?
     entry_points={
