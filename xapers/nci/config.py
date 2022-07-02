@@ -1,14 +1,14 @@
 import os
-import sys
 from pathlib import Path
 from lark import Lark, Transformer
 
 grammar = """
     %import common.CNAME
-    %import common.NEWLINE
     %import common.WS_INLINE
-    %import common.SH_COMMENT
+    _NEWLINE: /(\\r?\\n)+/
     %ignore WS_INLINE
+    COMMENT: "#" /.*/ _NEWLINE
+    %ignore COMMENT
     CONTEXT: "ui"i | "search"i | "prompt"i | "document"i | "help"i | "bibview"i
     SPECIAL: "enter"i | "space"i | "tab"i | "backspace"i
         | "insert"i | "delete"i | "home"i | "end"i | "pgup"i | "pgdn"i
@@ -22,7 +22,7 @@ grammar = """
     ?rhs: "<" key ">"
         | CNAME -> action
     ?statement: bind | unbind
-    config: NEWLINE* (statement NEWLINE+)*
+    config: _NEWLINE? (statement _NEWLINE)*
 """
 
 
