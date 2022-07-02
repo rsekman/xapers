@@ -37,6 +37,42 @@ Xapers is heavily inspired by the notmuch mail indexing system [2].
 
 ![xapers ncurses UI]](screenshot.png "xapers ncurses UI")
 
+Configuration
+=============
+
+Xapers's curses interface tries to read a configuration file `config` from the following locations, in this order:
+  * `$XDG_CONFIG_HOME/xapers`
+  * `~/.config/xapers`
+  * `~/.xapers`
+
+
+Each line of the configuration file is either blank, a `#`-prefixed comment, or
+a *statement*.
+Available statements are listed below.
+Their grammar is described in BNF.
+
+bind
+----
+
+The `bind` statement maps a key to an action or another key.
+Its format is (BNF)
+```
+bind ::= "bind" context? key rhs
+rhs  ::= action | "<" key ">"
+```
+where `context` is one of `ui, search, document` according to the widget that has the action to be bound.
+For example, these are part of the default configuration:
+```
+bind ? help
+bind document enter viewFile
+```
+See the built-help (default keybinding `?`) for available commands and default bindings.
+If `context` is omitted, it defaults to `ui`, which is the top-level widget.
+`key` is a single-character or one of the special keys `enter, space, tab, backspace, insert, delete, home, end, up, down, left, right, pgup, pgdn, f1-12`.
+Modifier prefixes `ctrl, meta, shift` can be used with a `-` separator, e.g. `meta-b`.
+If `rhs` is a `key` enclosed in `<` and `>` the meaning of the bind is to map the first key to the second, cf. vim's key mappings.
+There is no check for cycles; take care not to create an infite loop.
+
 
 Contact
 =======
@@ -78,6 +114,7 @@ Dependencies :
   * python3-pybtex - Python bibtex parser
   * poppler-utils - PDF processing tools
   * python3-pycurl - Python bindings to libcurl
+  * python3-lark - For parsing config files
 
 Recommends (for curses UI) :
   * python3-urwid - Python Urwid curses library
