@@ -36,7 +36,7 @@ class InteractableMeta(WidgetMeta):
                     doc = ms[bstr].__doc__
                     yield (k, bstr, ms[bstr].__doc__)
             if len(unbound) > 0:
-                yield (None, "", f"Unbound {cname} commands: ")
+                yield (None, "", f"Unbound {name} commands: ")
                 for c in unbound:
                     yield (" ", c, ms[c].__doc__)
         attrs["_help"] = _help

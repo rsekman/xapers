@@ -15,12 +15,13 @@ grammar = """
         | "up"i | "down"i | "left"i | "right"i
         | "f"i (/[1-9]/ | "10" | "11" | "12")
     bind: "bind" CONTEXT? key rhs
+    unbind: "unbind" CONTEXT? key
     MODIFIER: "ctrl"i | "shift"i | "meta"i
     key: (MODIFIER "-")? /\S/
         | SPECIAL
     ?rhs: "<" key ">"
         | CNAME -> action
-    ?statement: bind
+    ?statement: bind | unbind
     config: NEWLINE* (statement NEWLINE+)*
 """
 
@@ -74,6 +75,16 @@ class Bind:
         return f"Bind({self.context}, {self.key}, {self.rhs})"
 
 
+class Unbind:
+    def __init__(self, children):
+        self.context = "ui"
+        offset = 0
+        if len(children) > 1:
+            self.context = str(children[0])
+            offset = 1
+        self.key = children[0 + offset]
+
+
 class Action:
     def __init__(self, action):
         self.action = action
@@ -100,6 +111,7 @@ class ConfigTransformer(Transformer):
 
     CNAME = str
     bind = Bind
+    unbind = Unbind
     action = lambda _, a: Action(a[0])
     key = Key
 
@@ -110,5 +122,10 @@ class ConfigTransformer(Transformer):
             if isinstance(c, Bind):
                 binds.setdefault(c.context, {})
                 binds[c.context][str(c.key)] = c.rhs
+            if isinstance(c, Unbind):
+                try:
+                    binds[c.context].pop(str(c.key))
+                except KeyError:
+                    pass
         out["binds"] = binds
         return out

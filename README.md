@@ -55,7 +55,6 @@ bind
 ----
 
 The `bind` statement maps a key to an action or another key.
-Its format is (BNF)
 ```
 bind ::= "bind" context? key rhs
 rhs  ::= action | "<" key ">"
@@ -72,6 +71,14 @@ If `context` is omitted, it defaults to `ui`, which is the top-level widget.
 Modifier prefixes `ctrl, meta, shift` can be used with a `-` separator, e.g. `meta-b`.
 If `rhs` is a `key` enclosed in `<` and `>` the meaning of the bind is to map the first key to the second, cf. vim's key mappings.
 There is no check for cycles; take care not to create an infite loop.
+
+unbind
+------
+The `unbind` statement unbinds a key.
+```
+unbind ::= "unbind" context? key
+```
+`context` and `key` have the same grammar and semantics as for the `bind` statement.
 
 
 Contact
